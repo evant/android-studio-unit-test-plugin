@@ -1,30 +1,26 @@
 <idea-plugin version="2">
-    <id>com.yourcompany.unique.plugin.id</id>
-    <name>Plugin display name here</name>
+    <id>me.tatarka.androidunittest.idea</id>
+    <name>Android Studio Unit Test</name>
     <version>1.0</version>
-    <vendor email="support@yourcompany.com"
-        url="http://www.yourcompany.com">YourCompany
+    <vendor email="evan@tatarka.me"
+        url="https://github.com/evant/android-studio-unit-test-plugin">Evan Tatarka
     </vendor>
 
     <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+        Android Studio IDE support for Android gradle unit tests. Prepared for Robolectric.
+        <br/>
+        This plugin will mark test directories and resolve testCompile dependencies. It also sets up
+        the correct system properties for Robolectric.
     ]]></description>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
+        Initial Release
     ]]>
     </change-notes>
 
     <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->
     <idea-version since-build="131" />
 
-    <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
-         on how to target different products -->
-    <!-- uncomment to enable plugin in all products
-    <depends>com.intellij.modules.lang</depends>
-    -->
     <depends>org.jetbrains.android</depends>
     <depends>org.jetbrains.plugins.gradle</depends>
 
@@ -41,7 +37,6 @@
     </application-components>
 
     <project-components>
-        <!-- Add your project components here -->
         <component>
             <implementation-class>me.tatarka.androidunittest.idea.AndroidStudioGradleUnitTestPluginComponent
             </implementation-class>
@@ -51,5 +46,4 @@
     <actions>
         <!-- Add your actions here -->
     </actions>
-
 </idea-plugin>
