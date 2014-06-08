@@ -13,32 +13,32 @@ Currently you need a forked version of JCAndKSolutions's [android-unit-test](htt
 
 1. Install the depenency.
 
-```bash
-git clone https://github.com/evant/android-studio-unit-test-plugin.git
-cd android-studio-unit-test-plugin
-gradle install
-```
+  ```bash
+  git clone https://github.com/evant/android-studio-unit-test-plugin.git
+  cd android-studio-unit-test-plugin
+  gradle install
+  ```
 
 2. Install the forked version of android-unit-test.
 
-```bash
-git clone https://github.com/evant/android-unit-test.git
-cd android-unit-test
-gradle install
-```
+  ```bash
+  git clone https://github.com/evant/android-unit-test.git
+  cd android-unit-test
+  gradle install
+  ```
 
 3. Set up the plugin as described [here](https://github.com/JCAndKSolutions/android-unit-test).
 
-The only difference is you need to point to the forked version you installed before.
-```groovy
-buildscript {
-  dependencies {
-    repositories {
-      mavenCentral()
-      mavenLocal()
-    }
+  The only difference is you need to point to the forked version you installed before.
+  ```groovy
+  buildscript {
+    dependencies {
+      repositories {
+        mavenCentral()
+        mavenLocal()
+      }
 
-    classpath 'com.github.jcandksolutions.gradle:android-unit-test:1.2.1-SNAPSHOT'
+      classpath 'com.github.jcandksolutions.gradle:android-unit-test:1.2.1-SNAPSHOT'
+    }
   }
-}
-```
+  ```
