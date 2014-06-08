@@ -1,0 +1,54 @@
+<component name="libraryTable">
+  <library name="idea-android">
+    <ANNOTATIONS>
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/androidAnnotations.jar!/" />
+    </ANNOTATIONS>
+    <CLASSES>
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/android-common.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/android-rt.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/android.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/asm-4.0.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/asm-analysis-4.0.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/asm-tree-4.0.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/assetstudio.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/bcpkix-jdk15on-1.48.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/bcprov-jdk15on-1.48.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/builder-model-0.11.0.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/builder-model-0.9.0.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/common.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/commons-compress-1.0.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/ddmlib.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/draw9patch.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/dvlib.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/easymock-3.1.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/fluent-hc-4.3.2.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/freemarker-2.3.19.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/freemarker-2.3.20.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/GoogleFeedback.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/gradle-import.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/guava-15.0.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/httpclient-4.3.2.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/httpcore-4.3.1.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/httpmime-4.3.2.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/jarutils.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/javawriter-2.2.1.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/junit.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/kxml2-2.3.0.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/layoutlib-api.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/lint-api.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/lint-checks.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/lombok-ast-0.2.2.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/manifest-merger.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/mockito-all-1.9.5.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/ninepatch.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/perflib.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/sdk-common.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/sdk-tools.jar!/" />
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/sdklib.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/mockito-all-1.9.5.jar!/" />
+    </SOURCES>
+  </library>
+</component>

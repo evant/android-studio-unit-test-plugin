@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="android-plugin">
+    <CLASSES>
+      <root url="file://$APPLICATION_HOME_DIR$/plugins/android/lib" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$APPLICATION_HOME_DIR$/plugins/android/lib" />
+    </SOURCES>
+    <jarDirectory url="file://$APPLICATION_HOME_DIR$/plugins/android/lib" recursive="false" />
+    <jarDirectory url="file://$APPLICATION_HOME_DIR$/plugins/android/lib" recursive="false" type="SOURCES" />
+  </library>
+</component>

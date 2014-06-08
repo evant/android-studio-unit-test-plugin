@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="android-unit-test-model">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../android-unit-test-model/build/libs/android-unit-test-model-1.0-SNAPSHOT.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
