@@ -1,13 +1,15 @@
 package me.tatarka.androidunittest.idea;
 
+import com.android.builder.model.JavaArtifact;
+import com.android.builder.model.SourceProvider;
 import com.google.common.collect.Lists;
 import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
-import me.tatarka.androidunittest.model.Variant;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import java.io.File;
@@ -30,9 +32,9 @@ public class ContentRootModuleCustomizer extends AbstractContentRootModuleCustom
             contentEntries.add(model.addContentEntry(FilePaths.pathToIdeaUrl(buildFolderPath)));
         }
 
-        Variant selectedVariant = androidUnitTest.getSelectedVariant();
-        if (selectedVariant != null) {
-            setCompilerOutputPath(model, selectedVariant.getCompileDestinationDirectory(), true);
+        JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
+        if (selectedTestJavaArtifact != null) {
+            setCompilerOutputPath(model, selectedTestJavaArtifact.getClassesFolder(), true);
         }
 
         return contentEntries;
@@ -40,11 +42,17 @@ public class ContentRootModuleCustomizer extends AbstractContentRootModuleCustom
 
     @Override
     protected void setUpContentEntries(@NotNull Collection<ContentEntry> contentEntries, @NotNull IdeaAndroidUnitTest androidUnitTest, @NotNull List<RootSourceFolder> orphans) {
-        Variant selectedVariant = androidUnitTest.getSelectedVariant();
-        if (selectedVariant != null) {
-            Collection<File> testSources = selectedVariant.getSourceDirectories();
+        JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
+        if (selectedTestJavaArtifact != null) {
+            SourceProvider sourceProvider = selectedTestJavaArtifact.getVariantSourceProvider();
+
+            Collection<File> testSources = sourceProvider.getJavaDirectories();
             for (File source : testSources) {
                 addSourceFolder(contentEntries, source, JavaSourceRootType.TEST_SOURCE, false, orphans);
+            }
+            Collection<File> testResources = sourceProvider.getResourcesDirectories();
+            for (File resource : testResources) {
+                addSourceFolder(contentEntries, resource, JavaResourceRootType.TEST_RESOURCE, false, orphans);
             }
         }
     }

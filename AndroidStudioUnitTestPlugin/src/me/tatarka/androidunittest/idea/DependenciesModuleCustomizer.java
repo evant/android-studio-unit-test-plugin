@@ -1,5 +1,9 @@
 package me.tatarka.androidunittest.idea;
 
+import com.android.builder.model.AndroidLibrary;
+import com.android.builder.model.Dependencies;
+import com.android.builder.model.JavaArtifact;
+import com.android.builder.model.JavaLibrary;
 import com.android.tools.idea.gradle.dependency.LibraryDependency;
 import com.android.tools.idea.gradle.dependency.ModuleDependency;
 import com.android.tools.idea.gradle.facet.AndroidGradleFacet;
@@ -11,7 +15,6 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleOrderEntry;
-import me.tatarka.androidunittest.model.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,15 +32,19 @@ public class DependenciesModuleCustomizer extends AbstractDependenciesModuleCust
 
     @Override
     protected void setUpDependencies(@NotNull ModifiableRootModel rootModel, @NotNull IdeaAndroidUnitTest androidUnitTest, @NotNull List<Message> errorsFound) {
-        Variant selectedVariant = androidUnitTest.getSelectedVariant();
-        if (selectedVariant == null) return;
+        JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
 
-        for (File library : selectedVariant.getJavaDependencies()) {
-            updateDependency(rootModel, library);
+        if (selectedTestJavaArtifact == null) return;
+
+        Dependencies dependencies = selectedTestJavaArtifact.getDependencies();
+        for (JavaLibrary library : dependencies.getJavaLibraries()) {
+            updateDependency(rootModel, library.getJarFile());
         }
-
-        for (String gradleProjectPath : selectedVariant.getProjectDependencies()) {
-            updateDependency(rootModel, gradleProjectPath, errorsFound);
+        for (AndroidLibrary library : dependencies.getLibraries()) {
+            updateDependency(rootModel, library.getFolder());
+        }
+        for (String project : dependencies.getProjects()) {
+            updateDependency(rootModel, project, errorsFound);
         }
     }
 
@@ -57,10 +64,10 @@ public class DependenciesModuleCustomizer extends AbstractDependenciesModuleCust
     }
 
     private void updateDependency(@NotNull ModifiableRootModel model,
-                                  @Nullable String gradleProjectPath,
+                                  @Nullable String project,
                                   @NotNull List<Message> errorsFound) {
-        if (gradleProjectPath == null || gradleProjectPath.isEmpty()) return;
-        ModuleDependency dependency = new ModuleDependency(gradleProjectPath, DependencyScope.TEST);
+        if (project == null || project.isEmpty()) return;
+        ModuleDependency dependency = new ModuleDependency(project, DependencyScope.TEST);
 
         ModuleManager moduleManager = ModuleManager.getInstance(model.getProject());
         Module moduleDependency = null;

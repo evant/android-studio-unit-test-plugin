@@ -1,6 +1,11 @@
 package me.tatarka.androidunittest.idea;
 
+import com.android.builder.model.JavaArtifact;
+import com.android.builder.model.SourceProvider;
 import com.android.tools.idea.gradle.customizer.ModuleCustomizer;
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.collect.Collections2;
 import com.google.common.collect.Maps;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.RunnerAndConfigurationSettings;
@@ -11,10 +16,13 @@ import com.intellij.execution.junit.JUnitConfiguration;
 import com.intellij.execution.junit.JUnitConfigurationType;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
-import me.tatarka.androidunittest.model.Variant;
+import me.tatarka.androidunittest.idea.util.DefaultManifestParser;
+import me.tatarka.androidunittest.idea.util.ManifestParser;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -25,11 +33,11 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
     @Override
     public void customizeModule(@NotNull Module module, @NotNull Project project, @Nullable IdeaAndroidUnitTest androidUnitTest) {
         if (androidUnitTest == null) return;
-        Variant variant = androidUnitTest.getSelectedVariant();
-        if (variant == null) return;
-        String RPackageName = androidUnitTest.getDelegate().getRPackageName();
+        JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
+        if (selectedTestJavaArtifact == null) return;
+        String RPackageName = findRPackageName(androidUnitTest);
 
-        String vmParameters = buildVmParameters(RPackageName, variant);
+        String vmParameters = buildVmParameters(RPackageName, selectedTestJavaArtifact);
 
         RunManager runManager = RunManager.getInstance(project);
         runManager.getConfigurationFactories();
@@ -37,7 +45,7 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
         List<RunConfiguration> configs = runManager.getConfigurationsList(junitConfigType);
 
         for (RunConfiguration config : configs) {
-            if (config instanceof JUnitConfiguration) {
+            if (isRelevantRunConfig(module, config)) {
                 JUnitConfiguration jconfig = (JUnitConfiguration) config;
                 jconfig.setVMParameters(vmParameters);
             }
@@ -46,25 +54,44 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
         for (ConfigurationFactory factory : junitConfigType.getConfigurationFactories()) {
             RunnerAndConfigurationSettings settings = runManager.getConfigurationTemplate(factory);
             RunConfiguration config = settings.getConfiguration();
-            if (config instanceof JUnitConfiguration) {
+            if (isRelevantRunConfig(module, config)) {
                 JUnitConfiguration jconfig = (JUnitConfiguration) config;
                 jconfig.setVMParameters(vmParameters);
             }
         }
     }
 
-    private static String buildVmParameters(String RPackageName, Variant variant) {
+    private static String findRPackageName(IdeaAndroidUnitTest androidUnitTest) {
+        String packageName = androidUnitTest.getAndroidDelegate().getDefaultConfig().getProductFlavor().getApplicationId();
+        if (packageName == null) {
+            File manifestFile = androidUnitTest.getAndroidDelegate().getDefaultConfig().getSourceProvider().getManifestFile();
+            ManifestParser parser = new DefaultManifestParser();
+            packageName = parser.getPackage(manifestFile);
+        }
+        return packageName;
+    }
+
+    private static boolean isRelevantRunConfig(Module module, RunConfiguration config) {
+        if (!(config instanceof JUnitConfiguration)) return false;
+        for (Module m : ((JUnitConfiguration) config).getModules()) {
+            if (m == module) return true;
+        }
+        return false;
+    }
+
+    private static String buildVmParameters(String RPackageName, JavaArtifact testJavaArtifact) {
         StringBuilder builder = new StringBuilder();
-        for (Map.Entry<String, String> prop : getRobolectricProperties(RPackageName, variant).entrySet()) {
+        for (Map.Entry<String, String> prop : getRobolectricProperties(RPackageName, testJavaArtifact).entrySet()) {
             builder.append("-D").append(prop.getKey()).append("=\"").append(prop.getValue()).append("\" ");
         }
         return builder.toString();
     }
 
-    private static Map<String, String> getRobolectricProperties(String RPackageName, Variant variant) {
-        String manifestFile = variant.getManifest().getAbsolutePath();
-        String resourcesDirs = variant.getResourcesDirectory().getAbsolutePath();
-        String assetsDir = variant.getAssetsDirectory().getAbsolutePath();
+    private static Map<String, String> getRobolectricProperties(String RPackageName, JavaArtifact testJavaArtifact) {
+        SourceProvider sourceProvider = testJavaArtifact.getVariantSourceProvider();
+        String manifestFile = sourceProvider.getManifestFile().getAbsolutePath();
+        String resourcesDirs = fileCollectionToPath(sourceProvider.getResDirectories());
+        String assetsDir = fileCollectionToPath(sourceProvider.getAssetsDirectories());
 
         Map<String, String> props = Maps.newHashMap();
         props.put("android.manifest", manifestFile);
@@ -72,5 +99,15 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
         props.put("android.assets", assetsDir);
         props.put("android.package", RPackageName);
         return props;
+    }
+
+    private static String fileCollectionToPath(Collection<File> files) {
+        return Joiner.on(File.pathSeparatorChar).join(Collections2.transform(files, new Function<File, String>() {
+            @javax.annotation.Nullable
+            @Override
+            public String apply(@Nullable File file) {
+                return file.getAbsolutePath();
+            }
+        }));
     }
 }

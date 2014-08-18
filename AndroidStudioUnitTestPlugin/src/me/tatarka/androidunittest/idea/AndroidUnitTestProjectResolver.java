@@ -1,6 +1,7 @@
 package me.tatarka.androidunittest.idea;
 
 import com.android.builder.model.AndroidProject;
+import com.android.builder.model.Variant;
 import com.android.tools.idea.gradle.util.GradleBuilds;
 import com.android.tools.idea.startup.AndroidStudioSpecificInitializer;
 import com.google.common.collect.Lists;
@@ -12,8 +13,6 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemConstants;
 import com.intellij.openapi.externalSystem.util.Order;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.containers.ContainerUtil;
-import me.tatarka.androidunittest.model.AndroidUnitTest;
-import me.tatarka.androidunittest.model.Variant;
 import org.gradle.tooling.model.gradle.GradleScript;
 import org.gradle.tooling.model.idea.IdeaModule;
 import org.jetbrains.annotations.NotNull;
@@ -44,18 +43,17 @@ public class AndroidUnitTestProjectResolver extends AbstractProjectResolverExten
         File moduleRootDirPath = moduleFilePath.getParentFile();
 
         AndroidProject androidProject = resolverCtx.getExtraProject(gradleModule, AndroidProject.class);
-        AndroidUnitTest androidUnitTest = resolverCtx.getExtraProject(gradleModule, AndroidUnitTest.class);
 
-        if (androidProject != null && androidUnitTest != null) {
-            Variant selectedVariant = getVariantToSelect(androidUnitTest);
-            IdeaAndroidUnitTest ideaAndroidUnitTest =  new IdeaAndroidUnitTest(gradleModule.getName(), moduleRootDirPath, androidUnitTest, androidProject, selectedVariant.getName());
+        if (androidProject != null) {
+            Variant selectedVariant = getVariantToSelect(androidProject);
+            IdeaAndroidUnitTest ideaAndroidUnitTest =  new IdeaAndroidUnitTest(gradleModule.getName(), moduleRootDirPath, androidProject, selectedVariant.getName());
             ideModule.createChild(AndroidUnitTestKeys.IDEA_ANDROID_UNIT_TEST, ideaAndroidUnitTest);
         }
     }
 
     @NotNull
-    private static Variant getVariantToSelect(@NotNull AndroidUnitTest androidUnitTest) {
-        Collection<Variant> variants = androidUnitTest.getVariants();
+    private static Variant getVariantToSelect(@NotNull AndroidProject androidProject) {
+        Collection<Variant> variants = androidProject.getVariants();
         if (variants.size() == 1) {
             Variant variant = ContainerUtil.getFirstItem(variants);
             assert variant != null;
@@ -81,7 +79,7 @@ public class AndroidUnitTestProjectResolver extends AbstractProjectResolverExten
     @Override
     @NotNull
     public Set<Class> getExtraProjectModelClasses() {
-        return Sets.<Class>newHashSet(AndroidProject.class, AndroidUnitTest.class);
+        return Sets.<Class>newHashSet(AndroidProject.class);
     }
 
     @Override
