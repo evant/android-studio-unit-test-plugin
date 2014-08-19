@@ -18,6 +18,8 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import me.tatarka.androidunittest.idea.util.DefaultManifestParser;
 import me.tatarka.androidunittest.idea.util.ManifestParser;
+import me.tatarka.androidunittest.model.AndroidUnitTest;
+import me.tatarka.androidunittest.model.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,29 +36,68 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
     public void customizeModule(@NotNull Module module, @NotNull Project project, @Nullable IdeaAndroidUnitTest androidUnitTest) {
         if (androidUnitTest == null) return;
         JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
-        if (selectedTestJavaArtifact == null) return;
-        String RPackageName = findRPackageName(androidUnitTest);
 
-        String vmParameters = buildVmParameters(RPackageName, selectedTestJavaArtifact);
+        if (selectedTestJavaArtifact != null) {
+            String RPackageName = findRPackageName(androidUnitTest);
 
-        RunManager runManager = RunManager.getInstance(project);
-        runManager.getConfigurationFactories();
-        JUnitConfigurationType junitConfigType = ConfigurationTypeUtil.findConfigurationType(JUnitConfigurationType.class);
-        List<RunConfiguration> configs = runManager.getConfigurationsList(junitConfigType);
+            String vmParameters = buildVmParameters(RPackageName, selectedTestJavaArtifact);
 
-        for (RunConfiguration config : configs) {
-            if (isRelevantRunConfig(module, config)) {
-                JUnitConfiguration jconfig = (JUnitConfiguration) config;
-                jconfig.setVMParameters(vmParameters);
+            RunManager runManager = RunManager.getInstance(project);
+            runManager.getConfigurationFactories();
+            JUnitConfigurationType junitConfigType = ConfigurationTypeUtil.findConfigurationType(JUnitConfigurationType.class);
+            List<RunConfiguration> configs = runManager.getConfigurationsList(junitConfigType);
+
+            for (RunConfiguration config : configs) {
+                if (isRelevantRunConfig(module, config)) {
+                    JUnitConfiguration jconfig = (JUnitConfiguration) config;
+                    jconfig.setVMParameters(vmParameters);
+                }
             }
-        }
 
-        for (ConfigurationFactory factory : junitConfigType.getConfigurationFactories()) {
-            RunnerAndConfigurationSettings settings = runManager.getConfigurationTemplate(factory);
-            RunConfiguration config = settings.getConfiguration();
-            if (isRelevantRunConfig(module, config)) {
-                JUnitConfiguration jconfig = (JUnitConfiguration) config;
-                jconfig.setVMParameters(vmParameters);
+            for (ConfigurationFactory factory : junitConfigType.getConfigurationFactories()) {
+                RunnerAndConfigurationSettings settings = runManager.getConfigurationTemplate(factory);
+                RunConfiguration config = settings.getConfiguration();
+                if (isRelevantRunConfig(module, config)) {
+                    JUnitConfiguration jconfig = (JUnitConfiguration) config;
+                    jconfig.setVMParameters(vmParameters);
+                }
+            }
+        } else {
+            oldCustomizeModule(module, project, androidUnitTest);
+        }
+    }
+
+    @Deprecated
+    protected void oldCustomizeModule(@NotNull Module module, @NotNull Project project, @Nullable IdeaAndroidUnitTest androidUnitTest) {
+        if (androidUnitTest == null) return;
+        Variant selectedTestVariant = androidUnitTest.getSelectedTestVariant();
+        if (selectedTestVariant != null) {
+            AndroidUnitTest testDelegate = androidUnitTest.getTestDelegate();
+            if (testDelegate == null) return;
+
+            String RPackageName = testDelegate.getRPackageName();
+
+            String vmParameters = oldBuildVmParameters(RPackageName, selectedTestVariant);
+
+            RunManager runManager = RunManager.getInstance(project);
+            runManager.getConfigurationFactories();
+            JUnitConfigurationType junitConfigType = ConfigurationTypeUtil.findConfigurationType(JUnitConfigurationType.class);
+            List<RunConfiguration> configs = runManager.getConfigurationsList(junitConfigType);
+
+            for (RunConfiguration config : configs) {
+                if (isRelevantRunConfig(module, config)) {
+                    JUnitConfiguration jconfig = (JUnitConfiguration) config;
+                    jconfig.setVMParameters(vmParameters);
+                }
+            }
+
+            for (ConfigurationFactory factory : junitConfigType.getConfigurationFactories()) {
+                RunnerAndConfigurationSettings settings = runManager.getConfigurationTemplate(factory);
+                RunConfiguration config = settings.getConfiguration();
+                if (isRelevantRunConfig(module, config)) {
+                    JUnitConfiguration jconfig = (JUnitConfiguration) config;
+                    jconfig.setVMParameters(vmParameters);
+                }
             }
         }
     }
@@ -87,11 +128,34 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
         return builder.toString();
     }
 
+    @Deprecated
+    private static String oldBuildVmParameters(String RPackageName, Variant testVariant) {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, String> prop : oldGetRobolectricProperties(RPackageName, testVariant).entrySet()) {
+            builder.append("-D").append(prop.getKey()).append("=\"").append(prop.getValue()).append("\" ");
+        }
+        return builder.toString();
+    }
+
     private static Map<String, String> getRobolectricProperties(String RPackageName, JavaArtifact testJavaArtifact) {
         SourceProvider sourceProvider = testJavaArtifact.getVariantSourceProvider();
         String manifestFile = sourceProvider.getManifestFile().getAbsolutePath();
         String resourcesDirs = fileCollectionToPath(sourceProvider.getResDirectories());
         String assetsDir = fileCollectionToPath(sourceProvider.getAssetsDirectories());
+
+        Map<String, String> props = Maps.newHashMap();
+        props.put("android.manifest", manifestFile);
+        props.put("android.resources", resourcesDirs);
+        props.put("android.assets", assetsDir);
+        props.put("android.package", RPackageName);
+        return props;
+    }
+
+    @Deprecated
+    private static Map<String, String> oldGetRobolectricProperties(String RPackageName, Variant testVariant) {
+        String manifestFile = testVariant.getManifest().getAbsolutePath();
+        String resourcesDirs = testVariant.getResourcesDirectory().getAbsolutePath();
+        String assetsDir = testVariant.getAssetsDirectory().getAbsolutePath();
 
         Map<String, String> props = Maps.newHashMap();
         props.put("android.manifest", manifestFile);

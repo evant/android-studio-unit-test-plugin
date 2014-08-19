@@ -11,6 +11,7 @@
     <orderEntry type="library" scope="PROVIDED" name="idea-android" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="idea-junit" level="project" />
     <orderEntry type="library" scope="PROVIDED" name="idea-gradle" level="project" />
+    <orderEntry type="library" name="me.tatarka.androidunittest:android-unit-test-model:1.0" level="project" />
   </component>
 </module>
 

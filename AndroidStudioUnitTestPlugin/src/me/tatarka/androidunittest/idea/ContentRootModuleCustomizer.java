@@ -8,6 +8,7 @@ import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
 import com.intellij.openapi.vfs.VirtualFile;
+import me.tatarka.androidunittest.model.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.jps.model.java.JavaResourceRootType;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
@@ -35,9 +36,19 @@ public class ContentRootModuleCustomizer extends AbstractContentRootModuleCustom
         JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
         if (selectedTestJavaArtifact != null) {
             setCompilerOutputPath(model, selectedTestJavaArtifact.getClassesFolder(), true);
+        } else {
+            oldFindOrCreateContentEntries(model, androidUnitTest);
         }
 
         return contentEntries;
+    }
+
+    @Deprecated
+    protected void oldFindOrCreateContentEntries(@NotNull ModifiableRootModel model, @NotNull IdeaAndroidUnitTest androidUnitTest) {
+        Variant selectedTestVariant = androidUnitTest.getSelectedTestVariant();
+        if (selectedTestVariant != null) {
+            setCompilerOutputPath(model, selectedTestVariant.getCompileDestinationDirectory(), true);
+        }
     }
 
     @Override
@@ -53,6 +64,19 @@ public class ContentRootModuleCustomizer extends AbstractContentRootModuleCustom
             Collection<File> testResources = sourceProvider.getResourcesDirectories();
             for (File resource : testResources) {
                 addSourceFolder(contentEntries, resource, JavaResourceRootType.TEST_RESOURCE, false, orphans);
+            }
+        } else {
+            oldSetUpContentEntries(contentEntries, androidUnitTest, orphans);
+        }
+    }
+
+    @Deprecated
+    protected void oldSetUpContentEntries(@NotNull Collection<ContentEntry> contentEntries, @NotNull IdeaAndroidUnitTest androidUnitTest, @NotNull List<RootSourceFolder> orphans) {
+        Variant selectedTestVariant = androidUnitTest.getSelectedTestVariant();
+        if (selectedTestVariant != null) {
+            Collection<File> testSources = selectedTestVariant.getSourceDirectories();
+            for (File source : testSources) {
+                addSourceFolder(contentEntries, source, JavaSourceRootType.TEST_SOURCE, false, orphans);
             }
         }
     }

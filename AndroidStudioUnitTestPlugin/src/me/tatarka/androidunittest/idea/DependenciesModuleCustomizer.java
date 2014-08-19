@@ -15,6 +15,7 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleOrderEntry;
+import me.tatarka.androidunittest.model.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,17 +35,33 @@ public class DependenciesModuleCustomizer extends AbstractDependenciesModuleCust
     protected void setUpDependencies(@NotNull ModifiableRootModel rootModel, @NotNull IdeaAndroidUnitTest androidUnitTest, @NotNull List<Message> errorsFound) {
         JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
 
-        if (selectedTestJavaArtifact == null) return;
+        if (selectedTestJavaArtifact != null) {
+            Dependencies dependencies = selectedTestJavaArtifact.getDependencies();
+            for (JavaLibrary library : dependencies.getJavaLibraries()) {
+                updateDependency(rootModel, library.getJarFile());
+            }
+            for (AndroidLibrary library : dependencies.getLibraries()) {
+                updateDependency(rootModel, library.getFolder());
+            }
+            for (String project : dependencies.getProjects()) {
+                updateDependency(rootModel, project, errorsFound);
+            }
+        } else {
+            oldSetUpDependencies(rootModel, androidUnitTest, errorsFound);
+        }
+    }
 
-        Dependencies dependencies = selectedTestJavaArtifact.getDependencies();
-        for (JavaLibrary library : dependencies.getJavaLibraries()) {
-            updateDependency(rootModel, library.getJarFile());
-        }
-        for (AndroidLibrary library : dependencies.getLibraries()) {
-            updateDependency(rootModel, library.getFolder());
-        }
-        for (String project : dependencies.getProjects()) {
-            updateDependency(rootModel, project, errorsFound);
+    @Deprecated
+    protected void oldSetUpDependencies(@NotNull ModifiableRootModel rootModel, @NotNull IdeaAndroidUnitTest androidUnitTest, @NotNull List<Message> errorsFound) {
+        Variant selectedTestVariant = androidUnitTest.getSelectedTestVariant();
+
+        if (selectedTestVariant != null) {
+            for (File library : selectedTestVariant.getJavaDependencies()) {
+                updateDependency(rootModel, library);
+            }
+            for (String gradleProjectPath : selectedTestVariant.getProjectDependencies()) {
+                updateDependency(rootModel, gradleProjectPath, errorsFound);
+            }
         }
     }
 

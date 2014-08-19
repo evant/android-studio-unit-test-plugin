@@ -6,6 +6,7 @@ import com.android.tools.idea.gradle.util.GradleBuilds;
 import com.android.tools.idea.startup.AndroidStudioSpecificInitializer;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.externalSystem.model.DataNode;
 import com.intellij.openapi.externalSystem.model.project.ModuleData;
 import com.intellij.openapi.externalSystem.model.project.ProjectData;
@@ -13,6 +14,7 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemConstants;
 import com.intellij.openapi.externalSystem.util.Order;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.containers.ContainerUtil;
+import me.tatarka.androidunittest.model.AndroidUnitTest;
 import org.gradle.tooling.model.gradle.GradleScript;
 import org.gradle.tooling.model.idea.IdeaModule;
 import org.jetbrains.annotations.NotNull;
@@ -26,6 +28,8 @@ import java.util.*;
  */
 @Order(ExternalSystemConstants.UNORDERED)
 public class AndroidUnitTestProjectResolver extends AbstractProjectResolverExtension {
+    private static final Logger LOGGER = Logger.getInstance(AndroidUnitTestProjectResolver.class);
+
     @Override
     public void populateModuleExtraModels(@NotNull IdeaModule gradleModule, @NotNull DataNode<ModuleData> ideModule) {
         GradleScript buildScript = null;
@@ -43,10 +47,15 @@ public class AndroidUnitTestProjectResolver extends AbstractProjectResolverExten
         File moduleRootDirPath = moduleFilePath.getParentFile();
 
         AndroidProject androidProject = resolverCtx.getExtraProject(gradleModule, AndroidProject.class);
+        AndroidUnitTest androidUnitTest = resolverCtx.getExtraProject(gradleModule, AndroidUnitTest.class);
+
+        if (androidUnitTest != null) {
+            LOGGER.warn("Using version <= 1.4.0 of the unit-test-plugin may not be supported in the future.");
+        }
 
         if (androidProject != null) {
             Variant selectedVariant = getVariantToSelect(androidProject);
-            IdeaAndroidUnitTest ideaAndroidUnitTest =  new IdeaAndroidUnitTest(gradleModule.getName(), moduleRootDirPath, androidProject, selectedVariant.getName());
+            IdeaAndroidUnitTest ideaAndroidUnitTest =  new IdeaAndroidUnitTest(gradleModule.getName(), moduleRootDirPath, androidProject, androidUnitTest, selectedVariant.getName());
             ideModule.createChild(AndroidUnitTestKeys.IDEA_ANDROID_UNIT_TEST, ideaAndroidUnitTest);
         }
     }
@@ -79,7 +88,7 @@ public class AndroidUnitTestProjectResolver extends AbstractProjectResolverExten
     @Override
     @NotNull
     public Set<Class> getExtraProjectModelClasses() {
-        return Sets.<Class>newHashSet(AndroidProject.class);
+        return Sets.<Class>newHashSet(AndroidProject.class, AndroidUnitTest.class);
     }
 
     @Override
