@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>me.tatarka.androidunittest.idea</id>
     <name>Android Studio Unit Test</name>
-    <version>1.0</version>
+    <version>1.1</version>
     <vendor email="evan@tatarka.me"
         url="https://github.com/evant/android-studio-unit-test-plugin">Evan Tatarka
     </vendor>
@@ -14,7 +14,14 @@
     ]]></description>
 
     <change-notes><![CDATA[
-        Initial Release
+        <ul>
+        <li>Fixed bug where multiple modules with the unit test plugin applied would cause the junit
+        test runner to pass in the wrong module's parameters.</li>
+        <li>Support using the android model to pass data from the gradle plugin. In the future, the
+        will be the only way support, so make sure you update your android-unit-test plugin!</li>
+        <li>Correctly mark test resources directories. Note: test resources are still not found when
+        run from the IDE.</li>
+        </ul>
     ]]>
     </change-notes>
 
