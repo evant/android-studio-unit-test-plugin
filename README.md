@@ -1,7 +1,7 @@
 android-studio-unit-test-plugin
 ===============================
 
-Android Studio IDE support for Android gradle [unit tests](https://github.com/JCAndKSolutions/android-unit-test).
+Android Studio (and Intellij 14) IDE support for Android gradle [unit tests](https://github.com/JCAndKSolutions/android-unit-test).
 
 This plugin will mark test directories and resolve `testCompile` dependencies. It also sets up the correct system properties so that Robolectric will work if you are using it.
 
@@ -26,7 +26,14 @@ Make sure you have at least version `1.2.2`.
 
 * Running tests from the IDE gives a `ClassNotFoundException` or something similar.
 
-  If your app includes a library project `compile project(":myLib")` then the JUnit test runner will attempt to run `testClasses` on that project. Since it doesn't have that task it will fail and your test classes will not be generated. To fix, add the needed task to your library project.
+**If you are running Android Stuido `0.8.9+`**.
+Your test classes will no longer be compiled before the junit test runner is run. There are two ways to fix this (you just need to do one of them).
+
+1. Add `tasks.findByName("assembleDebug").dependsOn("testDebugClasses")` to your `build.gradle` to force the test classes to be compiled whenever your project is compiled.
+2. Go to `Edit Configurations` and add a new gradle configuration that runs the task `testClasses`. Then in your junit configuration, below `Before launch`, click `+ -> Run Another Configuration` and add the gradle configuration you just created. 
+
+**If you are running intellij or and older version of Android Studio**.
+If your app includes a library project `compile project(":myLib")` then the JUnit test runner will attempt to run `testClasses` on that project. Since it doesn't have that task it will fail and your test classes will not be generated. To fix, add the needed task to your library project.
 
 ```groovy
 task testClasses {}
