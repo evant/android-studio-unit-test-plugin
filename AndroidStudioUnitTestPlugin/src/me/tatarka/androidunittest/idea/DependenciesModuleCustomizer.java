@@ -15,6 +15,10 @@ import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.roots.DependencyScope;
 import com.intellij.openapi.roots.ModifiableRootModel;
 import com.intellij.openapi.roots.ModuleOrderEntry;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
 import me.tatarka.androidunittest.model.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,6 +53,8 @@ public class DependenciesModuleCustomizer extends AbstractDependenciesModuleCust
         } else {
             oldSetUpDependencies(rootModel, androidUnitTest, errorsFound);
         }
+
+        updateDependenciesWithJavadocSources(rootModel, androidUnitTest);
     }
 
     @Deprecated
@@ -66,14 +72,34 @@ public class DependenciesModuleCustomizer extends AbstractDependenciesModuleCust
     }
 
     private void updateDependency(@NotNull ModifiableRootModel model, @NotNull File library) {
-        updateDependency(model, new LibraryDependency(library, DependencyScope.TEST));
+        LibraryDependency libraryDependency = new LibraryDependency(library, DependencyScope.TEST);
+        updateDependency(model, libraryDependency);
     }
+
 
     private void updateDependency(@NotNull ModifiableRootModel model, @NotNull LibraryDependency dependency) {
         Collection<String> binaryPaths = dependency.getPaths(LibraryDependency.PathType.BINARY);
+        setUpLibraryDependency(model, dependency.getName(), dependency.getScope(), binaryPaths, getDependencyOrder(dependency));
+    }
 
-        DependencyOrder order = overridesAndroidDependency(dependency.getName()) ? DependencyOrder.TOP : DependencyOrder.BOTTOM;
-        setUpLibraryDependency(model, dependency.getName(), dependency.getScope(), binaryPaths, order);
+    private void updateDependenciesWithJavadocSources(@NotNull ModifiableRootModel model, @NotNull IdeaAndroidUnitTest androidUnitTest) {
+        LibraryTable libraryTable = ProjectLibraryTable.getInstance(model.getProject());
+
+        for (Library library : libraryTable.getLibraries()) {
+            Collection<String> sourcesPaths = androidUnitTest.getSourcesPaths(library.getName());
+            Collection<String> javadocPaths = androidUnitTest.getJavadocPaths(library.getName());
+
+            updateLibrarySourcesIfAbsent(library, sourcesPaths, OrderRootType.SOURCES);
+            updateLibrarySourcesIfAbsent(library, javadocPaths, OrderRootType.DOCUMENTATION);
+        }
+    }
+
+    private static DependencyOrder getDependencyOrder(LibraryDependency dependency) {
+        return getDependencyOrder(dependency.getName());
+    }
+
+    private static DependencyOrder getDependencyOrder(String dependencyName) {
+        return overridesAndroidDependency(dependencyName) ? DependencyOrder.TOP : DependencyOrder.BOTTOM;
     }
 
     private static boolean overridesAndroidDependency(String name) {

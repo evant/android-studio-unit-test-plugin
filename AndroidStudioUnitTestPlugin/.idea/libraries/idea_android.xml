@@ -32,6 +32,7 @@
     <SOURCES>
       <root url="jar://$APPLICATION_HOME_DIR$/plugins/android/lib/mockito-all-1.9.5.jar!/" />
       <root url="file://$APPLICATION_HOME_DIR$/plugins/android/lib" />
+      <root url="file://$USER_HOME$/ub-tools-idea133/tools/adt/idea/android/src" />
     </SOURCES>
     <jarDirectory url="file://$APPLICATION_HOME_DIR$/plugins/android/lib" recursive="false" />
     <jarDirectory url="file://$APPLICATION_HOME_DIR$/plugins/android/lib" recursive="false" type="SOURCES" />

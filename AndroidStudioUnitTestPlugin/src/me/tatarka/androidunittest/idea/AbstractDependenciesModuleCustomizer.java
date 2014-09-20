@@ -157,7 +157,7 @@ public abstract class AbstractDependenciesModuleCustomizer<T> implements ModuleC
         }
     }
 
-    private static void updateLibrarySourcesIfAbsent(@NotNull Library library,
+    public static void updateLibrarySourcesIfAbsent(@NotNull Library library,
                                                      @NotNull Collection<String> paths,
                                                      @NotNull OrderRootType pathType) {
         if (paths.isEmpty() || library.getFiles(pathType).length > 0) {

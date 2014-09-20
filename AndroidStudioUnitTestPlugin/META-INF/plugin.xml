@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>me.tatarka.androidunittest.idea</id>
     <name>Android Studio Unit Test</name>
-    <version>1.1</version>
+    <version>1.2</version>
     <vendor email="evan@tatarka.me"
         url="https://github.com/evant/android-studio-unit-test-plugin">Evan Tatarka
     </vendor>
@@ -14,6 +14,14 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        <h3>1.2</h3>
+
+        <ul>
+        <li>Support attaching javadoc and sources downloaded by android-unit-test (requires version 1.6.+).</li>
+        </ul>
+
+        <h3>1.1</h3>
+
         <ul>
         <li>Fixed bug where multiple modules with the unit test plugin applied would cause the junit
         test runner to pass in the wrong module's parameters.</li>

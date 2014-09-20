@@ -14,16 +14,29 @@ import com.intellij.execution.configurations.ConfigurationTypeUtil;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.junit.JUnitConfiguration;
 import com.intellij.execution.junit.JUnitConfigurationType;
+import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.projectRoots.Sdk;
+import com.intellij.openapi.projectRoots.SdkTypeId;
+import com.intellij.openapi.roots.CompilerModuleExtension;
+import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.vfs.VirtualFile;
 import me.tatarka.androidunittest.idea.util.DefaultManifestParser;
 import me.tatarka.androidunittest.idea.util.ManifestParser;
 import me.tatarka.androidunittest.model.AndroidUnitTest;
 import me.tatarka.androidunittest.model.Variant;
+import org.jetbrains.android.sdk.AndroidSdkType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -36,11 +49,12 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
     public void customizeModule(@NotNull Module module, @NotNull Project project, @Nullable IdeaAndroidUnitTest androidUnitTest) {
         if (androidUnitTest == null) return;
         JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
+        com.android.builder.model.Variant androidVariant = androidUnitTest.getSelectedAndroidVariant();
 
         if (selectedTestJavaArtifact != null) {
             String RPackageName = findRPackageName(androidUnitTest);
 
-            String vmParameters = buildVmParameters(RPackageName, selectedTestJavaArtifact);
+            String vmParameters = buildVmParameters(module, RPackageName, selectedTestJavaArtifact, androidVariant);
 
             RunManager runManager = RunManager.getInstance(project);
             runManager.getConfigurationFactories();
@@ -53,6 +67,7 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
                     jconfig.setVMParameters(vmParameters);
                 }
             }
+
 
             for (ConfigurationFactory factory : junitConfigType.getConfigurationFactories()) {
                 RunnerAndConfigurationSettings settings = runManager.getConfigurationTemplate(factory);
@@ -83,6 +98,7 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
             runManager.getConfigurationFactories();
             JUnitConfigurationType junitConfigType = ConfigurationTypeUtil.findConfigurationType(JUnitConfigurationType.class);
             List<RunConfiguration> configs = runManager.getConfigurationsList(junitConfigType);
+
 
             for (RunConfiguration config : configs) {
                 if (isRelevantRunConfig(module, config)) {
@@ -120,11 +136,12 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
         return false;
     }
 
-    private static String buildVmParameters(String RPackageName, JavaArtifact testJavaArtifact) {
+    private static String buildVmParameters(Module module, String RPackageName, JavaArtifact testJavaArtifact, com.android.builder.model.Variant androidVariant) {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, String> prop : getRobolectricProperties(RPackageName, testJavaArtifact).entrySet()) {
             builder.append("-D").append(prop.getKey()).append("=\"").append(prop.getValue()).append("\" ");
         }
+        builder.append("-classpath ").append(fileCollectionToPath(getClasspath(module, testJavaArtifact, androidVariant)));
         return builder.toString();
     }
 
@@ -163,6 +180,65 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
         props.put("android.assets", assetsDir);
         props.put("android.package", RPackageName);
         return props;
+    }
+
+    private static Collection<File> getClasspath(Module module, JavaArtifact javaArtifact, com.android.builder.model.Variant androidVariant) {
+        Collection<File> classPath = new ArrayList<File>();
+
+        ModuleManager moduleManager = ModuleManager.getInstance(module.getProject());
+        for (Module modelDependency : moduleManager.getModules()) {
+            CompilerModuleExtension extension = CompilerModuleExtension.getInstance(modelDependency);
+            if (extension != null) {
+                VirtualFile compilerOutputPath = extension.getCompilerOutputPath();
+                VirtualFile compilerTestOutputPath = extension.getCompilerOutputPathForTests();
+                if (compilerOutputPath != null) classPath.add(new File(compilerOutputPath.getPath()));
+                if (compilerTestOutputPath != null) classPath.add(new File(compilerTestOutputPath.getPath()));
+            }
+        }
+
+        LibraryTable libraryTable = ProjectLibraryTable.getInstance(module.getProject());
+        for (Library library : libraryTable.getLibraries()) {
+            for (VirtualFile file : library.getFiles(OrderRootType.CLASSES)) {
+                String path = file.getPath();
+                if (path.endsWith("!/")) path = path.substring(0, path.length() - 2);
+                classPath.add(new File(path));
+            }
+        }
+
+        ModuleRootManager rootManager = ModuleRootManager.getInstance(module);
+        Sdk sdk = rootManager.getSdk();
+        if (sdk != null) {
+            SdkTypeId sdkType = sdk.getSdkType();
+            if (sdkType instanceof AndroidSdkType) {
+                for (VirtualFile file : sdk.getSdkModificator().getRoots(OrderRootType.CLASSES)) {
+                    String path = file.getPath();
+                    if (path.endsWith("!/")) path = path.substring(0, path.length() - 2);
+                    classPath.add(new File(path));
+                }
+
+                String path = ((AndroidSdkType) sdkType).getBinPath(sdk);
+                if (path != null)  {
+                    classPath.add(new File(path));
+                }
+            }
+        }
+
+        classPath.add(androidVariant.getMainArtifact().getClassesFolder());
+        classPath.add(javaArtifact.getClassesFolder());
+        classPath.addAll(javaArtifact.getVariantSourceProvider().getResourcesDirectories());
+        classPath.addAll(getIdeaJUnitClasspath());
+
+        return classPath;
+    }
+
+    private static Collection<File> getIdeaJUnitClasspath() {
+        String homePath = PathManager.getHomePath();
+        Collection<File> classPath = new ArrayList<File>(2);
+        File ideaRt = new File(homePath, "lib/idea_rt.jar");
+        File junitRt = new File(homePath, "plugins/junit/lib/junit-rt.jar");
+        if (ideaRt.exists()) classPath.add(ideaRt);
+        if (junitRt.exists()) classPath.add(junitRt);
+        return classPath;
     }
 
     private static String fileCollectionToPath(Collection<File> files) {

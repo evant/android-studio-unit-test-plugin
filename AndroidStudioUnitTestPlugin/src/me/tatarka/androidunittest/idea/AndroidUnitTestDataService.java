@@ -48,7 +48,11 @@ public class AndroidUnitTestDataService implements ProjectDataService<IdeaAndroi
                 doImport(toImport, project, synchronous);
             } catch (RuntimeException e) {
                 LOG.info(String.format("Failed to set up Android modules in project '%1$s'", project.getName()), e);
-                GradleSyncState.getInstance(project).syncFailed(e.getMessage());
+                if (e.getMessage() != null) {
+                    GradleSyncState.getInstance(project).syncFailed(e.getMessage());
+                } else {
+                    GradleSyncState.getInstance(project).syncFailed("Unknown Error");
+                }
             }
         }
     }
