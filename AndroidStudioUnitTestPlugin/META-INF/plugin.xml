@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>me.tatarka.androidunittest.idea</id>
     <name>Android Studio Unit Test</name>
-    <version>1.2</version>
+    <version>1.2.1</version>
     <vendor email="evan@tatarka.me"
         url="https://github.com/evant/android-studio-unit-test-plugin">Evan Tatarka
     </vendor>
@@ -14,6 +14,12 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        <h3>1.2.1</h3>
+
+        <ul>
+        <li>Fixed classpath being incorrectly set for the junit test runner.</li>
+        </ul>
+
         <h3>1.2</h3>
 
         <ul>
