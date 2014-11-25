@@ -1,6 +1,9 @@
 package me.tatarka.androidunittest.idea;
 
-import com.android.builder.model.*;
+import com.android.builder.model.AndroidLibrary;
+import com.android.builder.model.Dependencies;
+import com.android.builder.model.JavaArtifact;
+import com.android.builder.model.JavaLibrary;
 import com.android.tools.idea.gradle.dependency.LibraryDependency;
 import com.android.tools.idea.gradle.dependency.ModuleDependency;
 import com.android.tools.idea.gradle.facet.AndroidGradleFacet;
@@ -20,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,7 +44,7 @@ public class DependenciesModuleCustomizer extends AbstractDependenciesModuleCust
         for (JavaLibrary library : dependencies.getJavaLibraries()) {
             updateDependency(rootModel, library.getJarFile());
         }
-        for (AndroidLibrary library : dependencies.getLibraries()) {
+        for (AndroidLibrary library : getLibraries(dependencies)) {
             updateDependency(rootModel, library.getFolder());
         }
         for (String project : dependencies.getProjects()) {
@@ -125,6 +130,28 @@ public class DependenciesModuleCustomizer extends AbstractDependenciesModuleCust
         // fall back to library dependency, if available.
         if (hasLibraryBackup) {
             updateDependency(model, backup);
+        }
+    }
+
+    /**
+     * The android plugin changed {@link com.android.builder.model.Dependencies#getLibraries()} from
+     * returning a {@link java.util.List} to returning a {@link java.util.Collection}. Therefore, to
+     * be compatible, we will link against the latest version and fall back to reflection.
+     */
+    private static Collection<AndroidLibrary> getLibraries(Dependencies dependencies) {
+        try {
+            return dependencies.getLibraries();
+        } catch (NoSuchMethodError e) {
+            try {
+                Method method = dependencies.getClass().getMethod("getLibraries");
+                return (List<AndroidLibrary>) method.invoke(dependencies);
+            } catch (NoSuchMethodException e1) {
+                throw new RuntimeException(e1);
+            } catch (InvocationTargetException e1) {
+                throw new RuntimeException(e1);
+            } catch (IllegalAccessException e1) {
+                throw new RuntimeException(e1);
+            }
         }
     }
 }
