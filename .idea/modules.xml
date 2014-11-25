@@ -3,9 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/AndroidStudioUnitTestPlugin.iml" filepath="$PROJECT_DIR$/AndroidStudioUnitTestPlugin.iml" />
-      <module fileurl="file://$PROJECT_DIR$/AndroidStudioUnitTestPlugin/AndroidStudioUnitTestPlugin1.iml" filepath="$PROJECT_DIR$/AndroidStudioUnitTestPlugin/AndroidStudioUnitTestPlugin1.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android-unit-test-model/android-unit-test-model.iml" filepath="$PROJECT_DIR$/android-unit-test-model/android-unit-test-model.iml" />
     </modules>
   </component>
 </project>
-
