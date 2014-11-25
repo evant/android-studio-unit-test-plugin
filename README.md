@@ -20,7 +20,7 @@ If you feel like living on the edge, can download the [zip](https://github.com/e
 ## Install the gradle plugin
 To added unit testing support to your gradle project, you need JCAndKSolutions' android-unit-test gradle plugin.
 You need to set it up as described in the [README](https://github.com/JCAndKSolutions/android-unit-test).
-Make sure you have at least version `1.2.2`.
+Make sure you have at least version `1.5.0`.
 
 ## Troubleshooting
 
