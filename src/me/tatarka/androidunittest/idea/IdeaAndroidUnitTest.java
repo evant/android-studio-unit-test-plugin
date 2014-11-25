@@ -5,7 +5,6 @@ import com.google.common.collect.Maps;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
-import me.tatarka.androidunittest.model.AndroidUnitTest;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,26 +24,22 @@ public class IdeaAndroidUnitTest implements Serializable {
     @NotNull private final String myModuleName;
     @NotNull private final VirtualFile myRootDir;
     @NotNull private final AndroidProject myAndroidDelegate;
-    @Deprecated @Nullable private final AndroidUnitTest myTestDelegate;
     @Nullable private String mySelectedVariantName;
 
     @NotNull private Map<String, Variant> myAndroidVariantsByName = Maps.newHashMap();
     @NotNull private Map<String, JavaArtifact> myTestJavaArtifacts = Maps.newHashMap();
-    @Deprecated @NotNull private Map<String, me.tatarka.androidunittest.model.Variant> myTestVariantsByName = Maps.newHashMap();
 
     @NotNull private Map<String, File> myJavadocs = Maps.newHashMap();
     @NotNull private Map<String, File> mySources = Maps.newHashMap();
 
-    public IdeaAndroidUnitTest(@NotNull String moduleName, @NotNull File rootDir, @NotNull AndroidProject androidDelegate, @Nullable AndroidUnitTest testDelegate, @NotNull String selectedVariantName) {
+    public IdeaAndroidUnitTest(@NotNull String moduleName, @NotNull File rootDir, @NotNull AndroidProject androidDelegate, @NotNull String selectedVariantName) {
         myModuleName = moduleName;
         VirtualFile found = VfsUtil.findFileByIoFile(rootDir, true);
         assert found != null;
         myRootDir = found;
         myAndroidDelegate = androidDelegate;
-        myTestDelegate = testDelegate;
 
         populateVariantsByName();
-        oldPopulateVariantsByName();
 
         setSelectedVariantName(selectedVariantName);
         map.put(androidDelegate, this);
@@ -61,15 +56,6 @@ public class IdeaAndroidUnitTest implements Serializable {
                     myTestJavaArtifacts.put(variant.getName(), javaArtifact);
                     break;
                 }
-            }
-        }
-    }
-
-    @Deprecated
-    private void oldPopulateVariantsByName() {
-        if (myTestDelegate != null) {
-            for (me.tatarka.androidunittest.model.Variant variant : myTestDelegate.getVariants()) {
-                myTestVariantsByName.put(variant.getName(), variant);
             }
         }
     }
@@ -117,12 +103,6 @@ public class IdeaAndroidUnitTest implements Serializable {
         return myTestJavaArtifacts.get(mySelectedVariantName);
     }
 
-    @Deprecated
-    @Nullable
-    me.tatarka.androidunittest.model.Variant getSelectedTestVariant() {
-        return myTestVariantsByName.get(mySelectedVariantName);
-    }
-
     @Nullable
     public Variant getSelectedAndroidVariant() {
         return myAndroidVariantsByName.get(mySelectedVariantName);
@@ -138,10 +118,6 @@ public class IdeaAndroidUnitTest implements Serializable {
 
     @NotNull
     public AndroidProject getAndroidDelegate() { return myAndroidDelegate; }
-
-    @Deprecated
-    @Nullable
-    public AndroidUnitTest getTestDelegate() { return myTestDelegate; }
 
     @NotNull
     public VirtualFile getRootDir() { return myRootDir; }

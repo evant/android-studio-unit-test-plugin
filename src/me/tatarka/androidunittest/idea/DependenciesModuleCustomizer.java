@@ -1,9 +1,6 @@
 package me.tatarka.androidunittest.idea;
 
-import com.android.builder.model.AndroidLibrary;
-import com.android.builder.model.Dependencies;
-import com.android.builder.model.JavaArtifact;
-import com.android.builder.model.JavaLibrary;
+import com.android.builder.model.*;
 import com.android.tools.idea.gradle.dependency.LibraryDependency;
 import com.android.tools.idea.gradle.dependency.ModuleDependency;
 import com.android.tools.idea.gradle.facet.AndroidGradleFacet;
@@ -19,7 +16,6 @@ import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.impl.libraries.ProjectLibraryTable;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
-import me.tatarka.androidunittest.model.Variant;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,36 +35,18 @@ public class DependenciesModuleCustomizer extends AbstractDependenciesModuleCust
     protected void setUpDependencies(@NotNull ModifiableRootModel rootModel, @NotNull IdeaAndroidUnitTest androidUnitTest, @NotNull List<Message> errorsFound) {
         JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
 
-        if (selectedTestJavaArtifact != null) {
-            Dependencies dependencies = selectedTestJavaArtifact.getDependencies();
-            for (JavaLibrary library : dependencies.getJavaLibraries()) {
-                updateDependency(rootModel, library.getJarFile());
-            }
-            for (AndroidLibrary library : dependencies.getLibraries()) {
-                updateDependency(rootModel, library.getFolder());
-            }
-            for (String project : dependencies.getProjects()) {
-                updateDependency(rootModel, project, errorsFound);
-            }
-        } else {
-            oldSetUpDependencies(rootModel, androidUnitTest, errorsFound);
+        Dependencies dependencies = selectedTestJavaArtifact.getDependencies();
+        for (JavaLibrary library : dependencies.getJavaLibraries()) {
+            updateDependency(rootModel, library.getJarFile());
+        }
+        for (AndroidLibrary library : dependencies.getLibraries()) {
+            updateDependency(rootModel, library.getFolder());
+        }
+        for (String project : dependencies.getProjects()) {
+            updateDependency(rootModel, project, errorsFound);
         }
 
         updateDependenciesWithJavadocSources(rootModel, androidUnitTest);
-    }
-
-    @Deprecated
-    protected void oldSetUpDependencies(@NotNull ModifiableRootModel rootModel, @NotNull IdeaAndroidUnitTest androidUnitTest, @NotNull List<Message> errorsFound) {
-        Variant selectedTestVariant = androidUnitTest.getSelectedTestVariant();
-
-        if (selectedTestVariant != null) {
-            for (File library : selectedTestVariant.getJavaDependencies()) {
-                updateDependency(rootModel, library);
-            }
-            for (String gradleProjectPath : selectedTestVariant.getProjectDependencies()) {
-                updateDependency(rootModel, gradleProjectPath, errorsFound);
-            }
-        }
     }
 
     private void updateDependency(@NotNull ModifiableRootModel model, @NotNull File library) {

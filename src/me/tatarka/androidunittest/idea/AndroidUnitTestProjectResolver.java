@@ -14,7 +14,6 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemConstants;
 import com.intellij.openapi.externalSystem.util.Order;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.util.containers.ContainerUtil;
-import me.tatarka.androidunittest.model.AndroidUnitTest;
 import org.gradle.tooling.model.gradle.GradleScript;
 import org.gradle.tooling.model.idea.IdeaModule;
 import org.jetbrains.annotations.NotNull;
@@ -47,15 +46,10 @@ public class AndroidUnitTestProjectResolver extends AbstractProjectResolverExten
         File moduleRootDirPath = moduleFilePath.getParentFile();
 
         AndroidProject androidProject = resolverCtx.getExtraProject(gradleModule, AndroidProject.class);
-        AndroidUnitTest androidUnitTest = resolverCtx.getExtraProject(gradleModule, AndroidUnitTest.class);
-
-        if (androidUnitTest != null) {
-            LOGGER.warn("Using version <= 1.4.0 of the unit-test-plugin may not be supported in the future.");
-        }
 
         if (androidProject != null) {
             Variant selectedVariant = getVariantToSelect(androidProject);
-            IdeaAndroidUnitTest ideaAndroidUnitTest =  new IdeaAndroidUnitTest(gradleModule.getName(), moduleRootDirPath, androidProject, androidUnitTest, selectedVariant.getName());
+            IdeaAndroidUnitTest ideaAndroidUnitTest =  new IdeaAndroidUnitTest(gradleModule.getName(), moduleRootDirPath, androidProject, selectedVariant.getName());
             ideModule.createChild(AndroidUnitTestKeys.IDEA_ANDROID_UNIT_TEST, ideaAndroidUnitTest);
         }
     }
@@ -88,7 +82,7 @@ public class AndroidUnitTestProjectResolver extends AbstractProjectResolverExten
     @Override
     @NotNull
     public Set<Class> getExtraProjectModelClasses() {
-        return Sets.<Class>newHashSet(AndroidProject.class, AndroidUnitTest.class);
+        return Sets.<Class>newHashSet(AndroidProject.class);
     }
 
     @Override
