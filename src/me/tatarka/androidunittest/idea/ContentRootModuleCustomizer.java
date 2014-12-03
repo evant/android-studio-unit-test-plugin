@@ -34,7 +34,9 @@ public class ContentRootModuleCustomizer extends AbstractContentRootModuleCustom
         }
 
         JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
-        setCompilerOutputPath(model, selectedTestJavaArtifact.getClassesFolder(), true);
+        if (selectedTestJavaArtifact != null) {
+            setCompilerOutputPath(model, selectedTestJavaArtifact.getClassesFolder(), true);
+        }
 
         return contentEntries;
     }
@@ -42,6 +44,10 @@ public class ContentRootModuleCustomizer extends AbstractContentRootModuleCustom
     @Override
     protected void setUpContentEntries(@NotNull Collection<ContentEntry> contentEntries, @NotNull IdeaAndroidUnitTest androidUnitTest, @NotNull List<RootSourceFolder> orphans) {
         JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
+        if (selectedTestJavaArtifact == null) {
+            return;
+        }
+
         SourceProvider sourceProvider = selectedTestJavaArtifact.getVariantSourceProvider();
 
         Collection<File> testSources = sourceProvider.getJavaDirectories();

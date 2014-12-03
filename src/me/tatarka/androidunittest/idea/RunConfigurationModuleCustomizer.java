@@ -33,8 +33,13 @@ import java.util.Map;
 public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAndroidUnitTest> {
     @Override
     public void customizeModule(@NotNull Module module, @NotNull Project project, @Nullable IdeaAndroidUnitTest androidUnitTest) {
-        if (androidUnitTest == null) return;
+        if (androidUnitTest == null) {
+            return;
+        }
         JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
+        if (selectedTestJavaArtifact == null) {
+            return;
+        }
         Variant androidVariant = androidUnitTest.getSelectedAndroidVariant();
 
         String RPackageName = findRPackageName(androidUnitTest);

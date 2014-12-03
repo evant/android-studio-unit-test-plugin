@@ -39,6 +39,9 @@ public class DependenciesModuleCustomizer extends AbstractDependenciesModuleCust
     @Override
     protected void setUpDependencies(@NotNull ModifiableRootModel rootModel, @NotNull IdeaAndroidUnitTest androidUnitTest, @NotNull List<Message> errorsFound) {
         JavaArtifact selectedTestJavaArtifact = androidUnitTest.getSelectedTestJavaArtifact();
+        if (selectedTestJavaArtifact == null) {
+            return;
+        }
 
         Dependencies dependencies = selectedTestJavaArtifact.getDependencies();
         for (JavaLibrary library : dependencies.getJavaLibraries()) {

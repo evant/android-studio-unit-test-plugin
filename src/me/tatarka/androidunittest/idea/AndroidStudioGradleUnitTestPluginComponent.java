@@ -7,6 +7,7 @@ import com.android.tools.idea.gradle.variant.view.BuildVariantView;
 import com.google.common.collect.ImmutableList;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.ProjectComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.android.facet.AndroidFacet;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,8 @@ import java.util.List;
  * Created by evan on 6/6/14.
  */
 public class AndroidStudioGradleUnitTestPluginComponent implements ProjectComponent {
+    private static final Logger LOGGER = Logger.getInstance(AndroidStudioGradleUnitTestPluginComponent.class);
+
     private final Project myProject;
     private final List<ModuleCustomizer<IdeaAndroidUnitTest>> myCustomizers;
 
