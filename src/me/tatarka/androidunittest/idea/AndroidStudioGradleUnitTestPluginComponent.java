@@ -73,8 +73,6 @@ public class AndroidStudioGradleUnitTestPluginComponent implements ProjectCompon
         IdeaAndroidUnitTest androidUnitTest = IdeaAndroidUnitTest.getFromAndroidProject(androidProject.getDelegate());
         if (androidUnitTest == null) return;
 
-        androidUnitTest.setSelectedVariantName(androidProject.getSelectedVariant().getName());
-
         for (ModuleCustomizer<IdeaAndroidUnitTest> customizer : myCustomizers) {
             customizer.customizeModule(facet.getModule(), myProject, androidUnitTest);
         }

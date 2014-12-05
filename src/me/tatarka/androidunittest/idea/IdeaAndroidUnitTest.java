@@ -1,10 +1,13 @@
 package me.tatarka.androidunittest.idea;
 
 import com.android.builder.model.*;
+import com.android.tools.idea.gradle.IdeaAndroidProject;
 import com.google.common.collect.Maps;
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtil;
 import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.android.facet.AndroidFacet;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +27,6 @@ public class IdeaAndroidUnitTest implements Serializable {
     @NotNull private final String myModuleName;
     @NotNull private final VirtualFile myRootDir;
     @NotNull private final AndroidProject myAndroidDelegate;
-    @Nullable private String mySelectedVariantName;
 
     @NotNull private Map<String, Variant> myAndroidVariantsByName = Maps.newHashMap();
     @NotNull private Map<String, JavaArtifact> myTestJavaArtifacts = Maps.newHashMap();
@@ -32,7 +34,7 @@ public class IdeaAndroidUnitTest implements Serializable {
     @NotNull private Map<String, File> myJavadocs = Maps.newHashMap();
     @NotNull private Map<String, File> mySources = Maps.newHashMap();
 
-    public IdeaAndroidUnitTest(@NotNull String moduleName, @NotNull File rootDir, @NotNull AndroidProject androidDelegate, @NotNull String selectedVariantName) {
+    public IdeaAndroidUnitTest(@NotNull String moduleName, @NotNull File rootDir, @NotNull AndroidProject androidDelegate) {
         myModuleName = moduleName;
         VirtualFile found = VfsUtil.findFileByIoFile(rootDir, true);
         assert found != null;
@@ -41,7 +43,6 @@ public class IdeaAndroidUnitTest implements Serializable {
 
         populateVariantsByName();
 
-        setSelectedVariantName(selectedVariantName);
         map.put(androidDelegate, this);
 
         populateJavadocSourcesMaps();
@@ -84,28 +85,18 @@ public class IdeaAndroidUnitTest implements Serializable {
         return input.replace("-javadoc", "").replace("-sources", "");
     }
 
-    /** * Updates the name of the selected build variant. If the given name does not belong to an existing variant, this method will pick up
-     * the first variant, in alphabetical order.
-     *
-     * @param name the new name.
-     */
-    public void setSelectedVariantName(@NotNull String name) {
-        Collection<String> variantNames = getVariantNames();
-        String newVariantName = null;
-        if (variantNames.contains(name)) {
-            newVariantName = name;
-        }
-        mySelectedVariantName = newVariantName;
+    @Nullable
+    public JavaArtifact getSelectedTestJavaArtifact(Module module) {
+        return myTestJavaArtifacts.get(getSelectedAndroidVariant(module).getName());
     }
 
     @Nullable
-    public JavaArtifact getSelectedTestJavaArtifact() {
-        return myTestJavaArtifacts.get(mySelectedVariantName);
-    }
-
-    @Nullable
-    public Variant getSelectedAndroidVariant() {
-        return myAndroidVariantsByName.get(mySelectedVariantName);
+    public Variant getSelectedAndroidVariant(Module module) {
+        AndroidFacet facet = AndroidFacet.getInstance(module);
+        if (facet == null) return null;
+        IdeaAndroidProject androidProject = facet.getIdeaAndroidProject();
+        if (androidProject == null) return null;
+        return androidProject.getSelectedVariant();
     }
 
     @NotNull

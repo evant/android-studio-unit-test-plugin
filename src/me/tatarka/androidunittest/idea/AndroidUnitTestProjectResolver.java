@@ -2,6 +2,8 @@ package me.tatarka.androidunittest.idea;
 
 import com.android.builder.model.AndroidProject;
 import com.android.builder.model.Variant;
+import com.android.tools.idea.gradle.AndroidProjectKeys;
+import com.android.tools.idea.gradle.IdeaAndroidProject;
 import com.android.tools.idea.gradle.util.GradleBuilds;
 import com.android.tools.idea.startup.AndroidStudioSpecificInitializer;
 import com.google.common.collect.Lists;
@@ -48,35 +50,9 @@ public class AndroidUnitTestProjectResolver extends AbstractProjectResolverExten
         AndroidProject androidProject = resolverCtx.getExtraProject(gradleModule, AndroidProject.class);
 
         if (androidProject != null) {
-            Variant selectedVariant = getVariantToSelect(androidProject);
-            IdeaAndroidUnitTest ideaAndroidUnitTest =  new IdeaAndroidUnitTest(gradleModule.getName(), moduleRootDirPath, androidProject, selectedVariant.getName());
+            IdeaAndroidUnitTest ideaAndroidUnitTest =  new IdeaAndroidUnitTest(gradleModule.getName(), moduleRootDirPath, androidProject);
             ideModule.createChild(AndroidUnitTestKeys.IDEA_ANDROID_UNIT_TEST, ideaAndroidUnitTest);
         }
-    }
-
-    @NotNull
-    private static Variant getVariantToSelect(@NotNull AndroidProject androidProject) {
-        Collection<Variant> variants = androidProject.getVariants();
-        if (variants.size() == 1) {
-            Variant variant = ContainerUtil.getFirstItem(variants);
-            assert variant != null;
-            return variant;
-        }
-        // look for "debug" variant. This is just a little convenience for the user that has not created any additional flavors/build types.
-        // trying to match something else may add more complexity for little gain.
-        for (Variant variant : variants) {
-            if ("debug".equals(variant.getName())) {
-                return variant;
-            }
-        }
-        List<Variant> sortedVariants = Lists.newArrayList(variants);
-        Collections.sort(sortedVariants, new Comparator<Variant>() {
-            @Override
-            public int compare(Variant o1, Variant o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
-        return sortedVariants.get(0);
     }
 
     @Override
