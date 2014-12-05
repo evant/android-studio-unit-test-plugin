@@ -160,7 +160,12 @@ public abstract class AbstractDependenciesModuleCustomizer<T> implements ModuleC
     public static void updateLibrarySourcesIfAbsent(@NotNull Library library,
                                                      @NotNull Collection<String> paths,
                                                      @NotNull OrderRootType pathType) {
-        if (paths.isEmpty() || library.getFiles(pathType).length > 0) {
+        try {
+            if (paths.isEmpty() || library.getFiles(pathType).length > 0) {
+                return;
+            }
+        } catch (NullPointerException e) {
+            // Not entirely sure why this is thrown on library projects, catching it for now seems to be good enough.
             return;
         }
         // We only update paths if the library does not have any already defined.

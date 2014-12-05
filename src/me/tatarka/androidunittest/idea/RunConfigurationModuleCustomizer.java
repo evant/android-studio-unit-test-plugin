@@ -98,7 +98,8 @@ public class RunConfigurationModuleCustomizer implements ModuleCustomizer<IdeaAn
 
             AndroidRunConfiguration androidRunConfig = null;
             for (RunConfiguration config : configs) {
-                if (isRelevantRunConfig(module, config, AndroidRunConfiguration.class)) {
+                if (config instanceof AndroidRunConfiguration) {
+                    // Any android run configuration will do, just need one to create the task.
                     androidRunConfig = (AndroidRunConfiguration) config;
                     break;
                 }
