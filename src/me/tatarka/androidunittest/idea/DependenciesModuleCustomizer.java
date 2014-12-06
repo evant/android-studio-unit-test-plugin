@@ -62,7 +62,6 @@ public class DependenciesModuleCustomizer extends AbstractDependenciesModuleCust
         updateDependency(model, libraryDependency);
     }
 
-
     private void updateDependency(@NotNull ModifiableRootModel model, @NotNull LibraryDependency dependency) {
         Collection<String> binaryPaths = dependency.getPaths(LibraryDependency.PathType.BINARY);
         setUpLibraryDependency(model, dependency.getName(), dependency.getScope(), binaryPaths, getDependencyOrder(dependency));
