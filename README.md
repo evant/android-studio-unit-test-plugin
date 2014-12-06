@@ -27,10 +27,9 @@ Make sure you have at least version `1.2.2`.
 * Running tests from the IDE gives a `ClassNotFoundException` or something similar.
 
 **If you are running Android Stuido `0.8.9+`**.
-Your test classes will no longer be compiled before the junit test runner is run. There are two ways to fix this (you just need to do one of them).
-
-1. Add `tasks.findByName("assembleDebug").dependsOn("testDebugClasses")` to your `build.gradle` to force the test classes to be compiled whenever your project is compiled.
-2. Go to `Edit Configurations` and add a new gradle configuration that runs the task `testClasses`. Then in your junit configuration, below `Before launch`, click `+ -> Run Another Configuration` and add the gradle configuration you just created. 
+The latest version of this plugin will compile your test classes before running the test. However, the very first
+time you run them after they have been cleaned, you will still get this error. Simply attempting to run again will fix it
+and any subsiquent runs will work correctly.
 
 **If you are running intellij or and older version of Android Studio**.
 If your app includes a library project `compile project(":myLib")` then the JUnit test runner will attempt to run `testClasses` on that project. Since it doesn't have that task it will fail and your test classes will not be generated. To fix, add the needed task to your library project.
@@ -42,7 +41,3 @@ task testClasses {}
 * The relative path for Robolectric's `@Config(manifest = "path")` is different between gradle and Android Studio.
 
   This is because when creating a run configuration, the path is by default relative to your project root, whereas when running it from gradle it's correctly relative to your apps root. To fix, edit the JUnit run configuration and change `Working Directory` to point to your app root.
-
-* Android Studio is not recognizing the test directories when first opening the project.
-
-  Starting with `0.8.*`, Android Studio does not automatically refresh the project when it's opened. Doing this manually should fix this.
