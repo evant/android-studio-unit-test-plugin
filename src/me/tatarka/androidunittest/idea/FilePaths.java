@@ -1,5 +1,6 @@
 package me.tatarka.androidunittest.idea;
 
+import com.intellij.openapi.module.Module;
 import com.intellij.openapi.roots.ContentEntry;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VfsUtilCore;
@@ -33,5 +34,12 @@ public final class FilePaths {
     @NotNull
     public static String pathToIdeaUrl(@NotNull File path) {
         return VfsUtilCore.pathToUrl(FileUtil.toSystemIndependentName(path.getPath()));
+    }
+
+    public static File moduleRootPath(@NotNull Module module) {
+        String moduleFilePath = module.getModuleFilePath(); // System dependent absolute path.
+        File moduleFile = new File(moduleFilePath);
+        assert moduleFile.getParent() != null : moduleFile.getPath();
+        return moduleFile.getParentFile();
     }
 }

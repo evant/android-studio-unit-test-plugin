@@ -78,11 +78,7 @@ public class AndroidStudioGradleUnitTestPluginComponent implements ProjectCompon
                 if (androidFacet != null) {
                     IdeaAndroidProject ideaAndroidProject = androidFacet.getIdeaAndroidProject();
                     if (ideaAndroidProject != null) {
-                        String moduleFilePath = module.getModuleFilePath(); // System dependent absolute path.
-                        File moduleFile = new File(moduleFilePath);
-                        assert moduleFile.getParent() != null : moduleFile.getPath();
-                        File moduleRootDirPath = moduleFile.getParentFile();
-
+                        File moduleRootDirPath = FilePaths.moduleRootPath(module);
                         androidUnitTests.add(Pair.create(module, new IdeaAndroidUnitTest(module.getName(), moduleRootDirPath, ideaAndroidProject.getDelegate())));
                     }
                 }
@@ -100,6 +96,8 @@ public class AndroidStudioGradleUnitTestPluginComponent implements ProjectCompon
                     }
                 });
             }
+
+            RunConfigurationModuleCustomizer.setupRunManagerListener(myProject);
         }
     }
 
