@@ -18,7 +18,7 @@ In Android Studio go to `Settings -> Plugins -> Browse Repositories...` and sear
 If you feel like living on the edge, can download the [zip](https://github.com/evant/android-studio-unit-test-plugin/blob/master/AndroidStudioUnitTestPlugin.zip?raw=true) then go to `Settings -> Plugins -> Install plugin from disk..` to install.
 
 ## Install the gradle plugin
-To added unit testing support to your gradle project, you need JCAndKSolutions' android-unit-test gradle plugin.
+To add unit testing support to your gradle project, you need JCAndKSolutions' android-unit-test gradle plugin.
 You need to set it up as described in the [README](https://github.com/JCAndKSolutions/android-unit-test).
 Make sure you have at least version `1.5.0`.
 
