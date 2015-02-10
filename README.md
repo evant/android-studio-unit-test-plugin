@@ -1,3 +1,6 @@
+#[Deprecated]
+Google has finally released a [proper solution](http://tools.android.com/tech-docs/unit-testing-support) for unit testing. Therefore this plugin will no longer be activlty maintained.
+
 android-studio-unit-test-plugin
 ===============================
 
