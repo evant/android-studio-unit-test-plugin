@@ -20,7 +20,7 @@
     <ConfirmationsSetting value="0" id="Add" />
     <ConfirmationsSetting value="0" id="Remove" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA IC-139.144.2" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="RunManager">
@@ -119,4 +119,3 @@
     </configuration>
   </component>
 </project>
-
